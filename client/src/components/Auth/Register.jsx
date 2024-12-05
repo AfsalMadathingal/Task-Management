@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { registerSchema, validate } from '../../utils/validator';
+import toast from 'react-hot-toast';
+import { register } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -20,10 +25,41 @@ const RegisterPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log('Registration attempted with:', formData);
+
+    const error = validate(registerSchema)(formData);
+
+
+    if(error) {
+      toast.error(error);
+      return;
+    }
+
+    try {
+
+      const response = await register(formData);
+
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
+
+      if(response.success) {
+        toast.success("User registered successfully");
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        navigate('/');
+
+      }else{
+        toast.error(response.message);
+      }
+      
+    } catch (error) {
+
+      toast.error("something went wrong");
+
+      
+    }
   };
 
   return (

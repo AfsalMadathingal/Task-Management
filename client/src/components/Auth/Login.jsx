@@ -1,16 +1,52 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { loginSchema, validate } from '../../utils/validator';
+import toast from 'react-hot-toast';
+import { login } from '../../services/api';
 
-const LoginPage = () => {
+const LoginPage =  () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit =  async (e) => {
     e.preventDefault();
     // Handle login logic here
-    console.log('Login attempted with:', { email, password });
+
+    const error = validate(loginSchema)({ email, password });
+
+    if (error) {
+      toast.error(error);
+    }
+    
+    
+    try {
+
+      const response = await login({ email, password });
+
+
+      
+
+      if (response?.success) {
+    
+        toast.success(response.message);
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        navigate('/')
+        return
+      }
+
+     
+
+      toast.error("Invalid credentials");
+      
+    } catch (error) { 
+      
+      toast.error(error.response.data.message);
+      
+    }
   };
 
   return (

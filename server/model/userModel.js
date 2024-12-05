@@ -2,11 +2,9 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-  username: {
+  name :{
     type: String,
-    required: true,
-    unique: true,
-    trim: true,
+    required: true
   },
   email: {
     type: String,
@@ -28,6 +26,9 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+
+
+
 // Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -35,4 +36,6 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+
+export default User;
